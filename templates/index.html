@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deforestation Risk Prediction (Fuzzy SAR & Optical)</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Deforestation Risk Prediction</h1>
+        <p style="color: #7f8c8d; margin-bottom: 20px;">Powered by Sentinel-1 (SAR) & Sentinel-2 (Multispectral) Fuzzy Logic</p>
+        
+        <div class="upload-area" id="drop-zone-s2">
+            <input type="file" id="file-s2" hidden accept="image/*">
+            <p><strong>Sentinel-2 (Optical):</strong> Drag and drop image here or <span>click to upload</span></p>
+            <img id="preview-s2" src="" alt="S2 Preview" style="display:none;">
+        </div>
+
+        <div class="upload-area" id="drop-zone-s1" style="min-height: 100px; padding: 20px;">
+            <input type="file" id="file-s1" hidden accept="image/*">
+            <p><strong>Sentinel-1 (SAR) [Optional]:</strong> Drag and drop image here or <span>click to upload</span></p>
+            <img id="preview-s1" src="" alt="S1 Preview" style="display:none;">
+        </div>
+        
+        <button id="analyze-btn" disabled>Evaluate Fuzzy Risk</button>
+        
+        <div class="loader" id="loader" style="display:none;"></div>
+        
+        <div class="results" id="results" style="display:none;">
+            <h2>Analysis Results</h2>
+            <p>Overall Fuzzy Risk Level: <strong id="risk-level"></strong></p>
+            
+            <div class="legend">
+                <div class="legend-item"><div class="color-box bg-red"></div> High Risk</div>
+                <div class="legend-item"><div class="color-box bg-yellow"></div> Medium Risk</div>
+                <div class="legend-item"><div class="color-box bg-green"></div> Low Risk</div>
+            </div>
+            
+            <h3>Fuzzy Risk Map Overlay</h3>
+            <img id="output-img" src="" alt="Risk Map Output">
+        </div>
+    </div>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>

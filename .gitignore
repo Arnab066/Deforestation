@@ -1,0 +1,7 @@
+model/
+dataset/
+raw_images/
+uploads/
+__pycache__/
+.venv/
+*.pyc

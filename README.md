@@ -70,7 +70,10 @@ Start up the local web development server:
 ```bash
 python app.py
 ```
-*Navigate to `http://127.0.0.1:5000` in your web browser!*
+*Navigate to the address below in your web browser!*
+```text
+http://127.0.0.1:5000
+```
 
 ### 3. Usage
 Simply drag and drop an Optical (Sentinel-2) image to the first slot. Optionally, provide a corresponding SAR image mapping to the second slot. Hit **Evaluate Fuzzy Risk** and observe the live overlay map classification!

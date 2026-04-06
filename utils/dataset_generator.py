@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import os
 import glob
-
 def generate_dataset(image_dir='raw_images', save_dir='dataset', patch_size=224):
     os.makedirs(os.path.join(save_dir, 'low'), exist_ok=True)
     os.makedirs(os.path.join(save_dir, 'medium'), exist_ok=True)
@@ -22,7 +21,7 @@ def generate_dataset(image_dir='raw_images', save_dir='dataset', patch_size=224)
         for y in range(0, h - patch_size + 1, patch_size):
             for x in range(0, w - patch_size + 1, patch_size):
                 patch = img[y:y+patch_size, x:x+patch_size]
-                
+            
                 patch_rgb = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
                 r = patch_rgb[:,:,0].astype(np.float32)
                 g = patch_rgb[:,:,1].astype(np.float32)

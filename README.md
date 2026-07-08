@@ -72,7 +72,7 @@ python app.py
 ```
 *Navigate to the address below in your web browser!*
 ```text
-http://127.0.0.1:5000
+http://localhost:5005
 ```
 
 ### 3. Usage

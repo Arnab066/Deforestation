@@ -90,7 +90,7 @@ analyzeBtn.addEventListener('click', async () => {
         
         riskLevel.textContent = data.risk;
         riskLevel.style.color = data.risk === 'High' ? '#e74c3c' : (data.risk === 'Medium' ? '#f1c40f' : '#2ecc71');
-        outputImg.src = '/static/' + data.output_image + '?t=' + new Date().getTime();
+        outputImg.src = data.output_image.startsWith('data:') ? data.output_image : ('/static/' + data.output_image + '?t=' + new Date().getTime());
         
         results.style.display = 'block';
     } catch (error) {

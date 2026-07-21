@@ -1,29 +1,36 @@
-import cv2
+import io
+import base64
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from PIL import Image
 from .fuzzy_logic import evaluate_fuzzy_risk
 
-def preprocess_sentinel(s2_path, s1_path, size=(224, 224)):
+def preprocess_sentinel(s2_input, s1_input=None, size=(224, 224)):
     # Read S2 (Optical)
-    s2_img = cv2.imread(s2_path)
-    if s2_img is None:
-        raise ValueError("Sentinel-2 image not found")
-    s2_rgb = cv2.cvtColor(s2_img, cv2.COLOR_BGR2RGB)
-    s2_resized = cv2.resize(s2_rgb, size)
+    try:
+        s2_img = Image.open(s2_input).convert('RGB')
+    except Exception as e:
+        raise ValueError(f"Sentinel-2 image invalid or unreadable: {e}")
+    
+    s2_resized = np.array(s2_img.resize(size, Image.Resampling.LANCZOS))
     
     # Read S1 (SAR)
-    s1_img = cv2.imread(s1_path, cv2.IMREAD_GRAYSCALE)
-    if s1_img is None:
-        # If no separate S1 file, simulate SAR backscatter from S2 grayscale intensity for demo purposes
-        s1_img = cv2.cvtColor(s2_img, cv2.COLOR_BGR2GRAY)
-    s1_resized = cv2.resize(s1_img, size)
+    if s1_input is not None:
+        try:
+            s1_img = Image.open(s1_input).convert('L')
+        except Exception:
+            s1_img = s2_img.convert('L')
+    else:
+        s1_img = s2_img.convert('L')
+            
+    s1_resized = np.array(s1_img.resize(size, Image.Resampling.LANCZOS))
     
     return s2_resized, s1_resized
 
-def process_deforestation_fuzzy(s2_rgb, s1_gray, save_path):
-    # Compute pseudo-NDVI from standard generic true color RGB: 
-    # (assuming Green=NIR for mock data if true NIR band missing)
-    # R=0 (Red), G=1 (used as proxy for NIR if real S2 data not uploaded)
+def process_deforestation_fuzzy(s2_rgb, s1_gray, save_path=None):
+    # Compute pseudo-NDVI from standard RGB: (NIR=Green channel proxy if 3-band RGB)
     r = s2_rgb[:,:,0].astype(np.float32)
     nir = s2_rgb[:,:,1].astype(np.float32) 
     
@@ -44,10 +51,22 @@ def process_deforestation_fuzzy(s2_rgb, s1_gray, save_path):
     # Low risk < 35 (Green)
     risk_map[risk_scores < 35] = [0, 255, 0]
     
-    overlay = cv2.addWeighted(s2_rgb, 0.5, risk_map, 0.5, 0)
-    plt.imsave(save_path, overlay)
+    # Overlay using numpy arrays
+    overlay = (s2_rgb.astype(np.float32) * 0.5 + risk_map.astype(np.float32) * 0.5).astype(np.uint8)
     
-    # Compute average risk score of the central area
+    # Render overlay to base64 Data URL (serverless friendly)
+    buffer = io.BytesIO()
+    plt.imsave(buffer, overlay, format='png')
+    buffer.seek(0)
+    base64_str = "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+    if save_path:
+        try:
+            plt.imsave(save_path, overlay)
+        except Exception:
+            pass # fallback on read-only environments
+            
+    # Compute average risk score
     mean_score = np.mean(risk_scores)
     
     if mean_score >= 60:
@@ -57,4 +76,4 @@ def process_deforestation_fuzzy(s2_rgb, s1_gray, save_path):
     else:
         overall_risk = "Low"
         
-    return overall_risk
+    return overall_risk, base64_str
